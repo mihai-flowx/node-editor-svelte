@@ -4,7 +4,7 @@
 
   export let controlPointsOffset = {
     x: 40,
-    y: 20,
+    y: 0,
   }
 </script>
 

@@ -3,14 +3,15 @@
 
   export let name = ''
   export let id
+  export let outputSockets = []
+  export let inputSockets = []
   export let parent: HTMLElement = null
 
-  export let startPos = { x: 0, y: 0 }
   export let draggingZIndex = 1000
 
   const dispatch = createEventDispatcher()
 
-  let currentPos = startPos
+  export let currentPos: { x: number; y: number }
   let nodeElm = null
   let dragging = false
   let zIndexStyle = ''
@@ -43,15 +44,45 @@
 
   function dragMove(event: MouseEvent) {
     const oldPos = { ...currentPos }
-    currentPos.x = event.pageX - parent.getBoundingClientRect().left - dragPoint.x
-    currentPos.y = event.pageY - parent.getBoundingClientRect().top - dragPoint.y
+
+    currentPos = {
+      x: event.pageX - parent.getBoundingClientRect().left - dragPoint.x,
+      y: event.pageY - parent.getBoundingClientRect().top - dragPoint.y,
+    }
 
     const deltaPos = {
       x: currentPos.x - oldPos.x,
       y: currentPos.y - oldPos.y,
     }
 
-    dispatch('dragMove', { id, deltaPos })
+    dispatch('move', { id, currentPos, deltaPos, socketsPositions: getSocketsPositions() })
+  }
+
+  function getSocketsPositions(): { [id: number]: { x: number; y: number } } {
+    return {
+      ...outputSockets.reduce(
+        (sockets, socket) => ({
+          ...sockets,
+          [socket.id]: getSocketPos(socket),
+        }),
+        {}
+      ),
+      ...inputSockets.reduce(
+        (sockets, socket) => ({
+          ...sockets,
+          [socket.id]: getSocketPos(socket),
+        }),
+        {}
+      ),
+    }
+  }
+
+  function getSocketPos(socket: any): { x: number; y: number } {
+    const boundingClientRect = socket.elmRef.getBoundingClientRect()
+    return {
+      x: boundingClientRect.left + boundingClientRect.width / 2,
+      y: boundingClientRect.top + boundingClientRect.width / 2,
+    }
   }
 </script>
 
@@ -62,8 +93,19 @@
   on:mousedown={startDrag}
   on:mouseup={stopDrag}
   on:dragstart={() => false}>
-  <span class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20" style="left: -0.5rem" />
-  <span class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20" style="right: -0.5rem" />
+  {#each inputSockets as socket}
+    <span
+      bind:this={socket.elmRef}
+      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20"
+      style="left: -0.5rem" />
+  {/each}
+
+  {#each outputSockets as socket}
+    <span
+      bind:this={socket.elmRef}
+      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20"
+      style="right: -0.5rem" />
+  {/each}
 
   <h3 class="select-none border-b-2 border-gray-500">{name}</h3>
 

@@ -1,47 +1,12 @@
 <script lang="ts">
   import Node from '../components/Node.svelte'
   import Edge from '../components/Edge.svelte'
+  import { nodes, edges } from '../core/mock-data/mock-data'
 
-  let viewerElm = null
+  let viewerElm: HTMLElement = null
   let zoomLevel = 1
 
-  const edges = [
-    {
-      id: 1,
-      source: {
-        nodeId: 1,
-        socketId: 2,
-      },
-      target: {
-        nodeId: 2,
-        socketId: 1,
-      },
-    },
-    {
-      id: 2,
-      source: {
-        nodeId: 2,
-        socketId: 2,
-      },
-      target: {
-        nodeId: 3,
-        socketId: 1,
-      },
-    },
-    {
-      id: 3,
-      source: {
-        nodeId: 3,
-        socketId: 2,
-      },
-      target: {
-        nodeId: 4,
-        socketId: 1,
-      },
-    },
-  ]
-
-  const edgePositions = {
+  let edgePositions = {
     1: {
       source: { x: 100, y: 100 },
       target: { x: 300, y: 300 },
@@ -54,30 +19,11 @@
       source: { x: 350, y: 100 },
       target: { x: 200, y: 20 },
     },
+    4: {
+      source: { x: 550, y: 200 },
+      target: { x: 300, y: 100 },
+    },
   }
-
-  const nodes = [
-    {
-      id: 1,
-      name: 'start',
-    },
-    {
-      id: 2,
-      name: 'send_kafka_request',
-    },
-    {
-      id: 3,
-      name: 'receive_kafka_request',
-    },
-    {
-      id: 4,
-      name: 'show_search_results',
-    },
-    {
-      id: 5,
-      name: 'end',
-    },
-  ]
 
   function zoomViewer(event: WheelEvent) {
     console.log(event)
@@ -85,8 +31,48 @@
     zoomLevel = Math.min(1, Math.max(0.2, newZoom))
   }
 
-  function nodeMoved({ detail: { id, deltaPos } }) {
-    console.log('NODE MOVED', id, deltaPos)
+  function nodeMoved({ detail: { id, deltaPos, currentPos, socketsPositions } }) {
+    // console.log('NODE MOVED', id, deltaPos, currentPos, socketsPositions)
+    // TODO: Gaseste toate edges legate de nodu cu id-u asta si modifica-le pozitia
+    const edgesToUpdate = edges.filter((edge) => edge.source.nodeId === id || edge.target.nodeId === id)
+    // .map(({ id, source, target }) => ({ id, source, target }))
+    // console.log('EDGES TO UPDATE', edgesToUpdate)
+
+    const newEdgePositions = edgesToUpdate.reduce((edgesObj, edge) => {
+      let source: any, target: any
+      if (socketsPositions[edge.source.socketId]) {
+        source = {
+          x: socketsPositions[edge.source.socketId].x - viewerElm.getBoundingClientRect().left,
+          y: socketsPositions[edge.source.socketId].y - viewerElm.getBoundingClientRect().top,
+        }
+      } else {
+        source = { ...edgePositions[edge.id].source }
+      }
+
+      if (socketsPositions[edge.target.socketId]) {
+        target = {
+          x: socketsPositions[edge.target.socketId].x - viewerElm.getBoundingClientRect().left,
+          y: socketsPositions[edge.target.socketId].y - viewerElm.getBoundingClientRect().top,
+        }
+      } else {
+        target = { ...edgePositions[edge.id].target }
+      }
+
+      return {
+        ...edgesObj,
+        [edge.id]: {
+          source,
+          target,
+        },
+      }
+    }, {})
+
+    // console.log('NEW EDGE POS', newEdgePositions)
+
+    edgePositions = {
+      ...edgePositions,
+      ...newEdgePositions,
+    }
   }
 </script>
 
@@ -95,11 +81,13 @@
   <div style="transform: scale({zoomLevel})" class="nodes-wrapper border-red-500 border">
     {#each nodes as node, i}
       <Node
-        on:dragMove={nodeMoved}
+        on:move={nodeMoved}
         id={node.id}
         name={node.name}
         parent={viewerElm}
-        startPos={{ x: 100 + i * 250, y: 100 + 50 * Math.random() }} />
+        inputSockets={node.inputSockets}
+        outputSockets={node.outputSockets}
+        currentPos={{ x: 100 + i * 250, y: 100 + 50 * Math.random() }} />
     {/each}
     {#each Object.values(edgePositions) as edgePos}
       <Edge source={edgePos.source} target={edgePos.target} />
