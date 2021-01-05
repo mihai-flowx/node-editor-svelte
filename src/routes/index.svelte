@@ -1,8 +1,24 @@
 <script lang="ts">
   import Node from '../components/Node.svelte'
+  import Edge from '../components/Edge.svelte'
 
   let viewerElm = null
   let zoomLevel = 1
+
+  const edges = [
+    {
+      source: { x: 100, y: 100 },
+      target: { x: 300, y: 300 },
+    },
+    {
+      source: { x: 300, y: 100 },
+      target: { x: 380, y: 170 },
+    },
+    {
+      source: { x: 350, y: 100 },
+      target: { x: 200, y: 20 },
+    },
+  ]
 
   const nodes = [
     {
@@ -39,6 +55,9 @@
   <div style="transform: scale({zoomLevel})" class="nodes-wrapper border-red-500 border">
     {#each nodes as node, i}
       <Node name={node.name} parent={viewerElm} startPos={{ x: 100 + i * 250, y: 100 + 50 * Math.random() }} />
+    {/each}
+    {#each edges as edge}
+      <Edge source={edge.source} target={edge.target} />
     {/each}
   </div>
 </div>
