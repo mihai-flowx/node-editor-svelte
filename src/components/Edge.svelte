@@ -8,7 +8,7 @@
   }
 </script>
 
-<svg style="overflow: visible;" class="absolute left-0 top-0 w-0 h-0">
+<svg style="overflow: visible;" class="absolute left-0 top-0 w-0 h-0 z-10">
   <path
     d="M {source.x}, {source.y} C {source.x + controlPointsOffset.x}, {source.y - controlPointsOffset.y} {target.x - controlPointsOffset.x}, {target.y + controlPointsOffset.y} {target.x}, {target.y}"
     stroke="steelblue"
