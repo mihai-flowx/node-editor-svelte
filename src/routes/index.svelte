@@ -5,7 +5,7 @@
 </script>
 
 <h1 class="text-red-500 text-lg">Process Editor</h1>
-<NodesView {nodes} {edges} />
+<NodesView {nodes} {edges} zoomLevel={0.8} />
 
 <style global lang="postcss">
   /* purgecss start ignore */

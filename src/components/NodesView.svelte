@@ -4,14 +4,13 @@
 
   export let nodes: any[]
   export let edges: any[]
+  export let zoomLevel = 1
 
   let viewerElm: HTMLElement = null
-  let zoomLevel = 1
 
   let edgePositions = initEdgePositions(edges)
 
   function zoomViewer(event: WheelEvent) {
-    // console.log(event)
     const newZoom = zoomLevel + 0.02 * event.deltaY
     zoomLevel = Math.min(1, Math.max(0.2, newZoom))
   }
@@ -48,15 +47,15 @@
 
       if (socketsPositions[edge.source.socketId]) {
         source = {
-          x: socketsPositions[edge.source.socketId].x - viewerElm.getBoundingClientRect().left,
-          y: socketsPositions[edge.source.socketId].y - viewerElm.getBoundingClientRect().top,
+          x: (socketsPositions[edge.source.socketId].x - viewerElm.getBoundingClientRect().left) / zoomLevel,
+          y: (socketsPositions[edge.source.socketId].y - viewerElm.getBoundingClientRect().top) / zoomLevel,
         }
       }
 
       if (socketsPositions[edge.target.socketId]) {
         target = {
-          x: socketsPositions[edge.target.socketId].x - viewerElm.getBoundingClientRect().left,
-          y: socketsPositions[edge.target.socketId].y - viewerElm.getBoundingClientRect().top,
+          x: (socketsPositions[edge.target.socketId].x - viewerElm.getBoundingClientRect().left) / zoomLevel,
+          y: (socketsPositions[edge.target.socketId].y - viewerElm.getBoundingClientRect().top) / zoomLevel,
         }
       }
 
@@ -82,6 +81,7 @@
       <Node
         on:move={nodeMoved}
         on:mount={nodeMounted}
+        {zoomLevel}
         id={node.id}
         name={node.name}
         parent={viewerElm}

@@ -2,10 +2,11 @@
   import { createEventDispatcher, onMount } from 'svelte'
 
   export let name = ''
-  export let id
+  export let id: number
   export let outputSockets = []
   export let inputSockets = []
   export let parent: HTMLElement = null
+  export let zoomLevel: number
 
   export let draggingZIndex = 1000
 
@@ -29,20 +30,16 @@
 
   function startDrag(event: MouseEvent) {
     dragging = true
-    // console.log('START DRAG', event)
     document.addEventListener('mousemove', dragMove)
 
     dragPoint = {
-      x: event.pageX - nodeElm.getBoundingClientRect().left,
-      y: event.pageY - nodeElm.getBoundingClientRect().top,
+      x: event.clientX - nodeElm.getBoundingClientRect().left,
+      y: event.clientY - nodeElm.getBoundingClientRect().top,
     }
-
-    // console.log(dragPoint)
   }
 
-  function stopDrag(event) {
+  function stopDrag(event: MouseEvent) {
     dragging = false
-    // console.log('STOP DRAG', event)
     document.removeEventListener('mousemove', dragMove)
   }
 
@@ -50,8 +47,8 @@
     const oldPos = { ...currentPos }
 
     currentPos = {
-      x: event.pageX - parent.getBoundingClientRect().left - dragPoint.x,
-      y: event.pageY - parent.getBoundingClientRect().top - dragPoint.y,
+      x: (event.clientX - parent.getBoundingClientRect().left - dragPoint.x) / zoomLevel,
+      y: (event.clientY - parent.getBoundingClientRect().top - dragPoint.y) / zoomLevel,
     }
 
     const deltaPos = {
@@ -113,6 +110,6 @@
 
   <h3 class="select-none border-b-2 border-gray-500">{name}</h3>
 
-  <p>left: {parent?.getBoundingClientRect().left}</p>
-  <p>top: {parent?.getBoundingClientRect().top}</p>
+  <p>lorem ipsum</p>
+  <p>lorem ipsum</p>
 </div>
