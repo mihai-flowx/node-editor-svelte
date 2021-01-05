@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
 
+  import { MouseButton } from '../core/dictionary'
+
   export let name = ''
   export let id: number
   export let outputSockets = []
@@ -29,6 +31,10 @@
   })
 
   function startDrag(event: MouseEvent) {
+    if (event.button !== MouseButton.LEFT) {
+      return
+    }
+
     dragging = true
     document.addEventListener('mousemove', dragMove)
 
@@ -39,6 +45,10 @@
   }
 
   function stopDrag(event: MouseEvent) {
+    if (event.button !== MouseButton.LEFT) {
+      return
+    }
+
     dragging = false
     document.removeEventListener('mousemove', dragMove)
   }
@@ -97,14 +107,14 @@
   {#each inputSockets as socket}
     <span
       bind:this={socket.elmRef}
-      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20"
+      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 hover:border-blue-800 border-4 z-20"
       style="left: -0.5rem" />
   {/each}
 
   {#each outputSockets as socket}
     <span
       bind:this={socket.elmRef}
-      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 border-4 z-20"
+      class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 hover:border-blue-800 border-4 z-20"
       style="right: -0.5rem" />
   {/each}
 
