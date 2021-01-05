@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+
   export let name = ''
+  export let id
   export let parent: HTMLElement = null
 
   export let startPos = { x: 0, y: 0 }
   export let draggingZIndex = 1000
+
+  const dispatch = createEventDispatcher()
 
   let currentPos = startPos
   let nodeElm = null
@@ -37,8 +42,16 @@
   }
 
   function dragMove(event: MouseEvent) {
+    const oldPos = { ...currentPos }
     currentPos.x = event.pageX - parent.getBoundingClientRect().left - dragPoint.x
     currentPos.y = event.pageY - parent.getBoundingClientRect().top - dragPoint.y
+
+    const deltaPos = {
+      x: currentPos.x - oldPos.x,
+      y: currentPos.y - oldPos.y,
+    }
+
+    dispatch('dragMove', { id, deltaPos })
   }
 </script>
 
