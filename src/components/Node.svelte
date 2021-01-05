@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
 
   export let name = ''
   export let id
@@ -23,9 +23,13 @@
 
   $: zIndexStyle = dragging ? `z-index: ${draggingZIndex}` : ''
 
+  onMount(() => {
+    dispatch('mount', { id, socketsPositions: getSocketsPositions() })
+  })
+
   function startDrag(event: MouseEvent) {
     dragging = true
-    console.log('START DRAG', event)
+    // console.log('START DRAG', event)
     document.addEventListener('mousemove', dragMove)
 
     dragPoint = {
@@ -33,12 +37,12 @@
       y: event.pageY - nodeElm.getBoundingClientRect().top,
     }
 
-    console.log(dragPoint)
+    // console.log(dragPoint)
   }
 
   function stopDrag(event) {
     dragging = false
-    console.log('STOP DRAG', event)
+    // console.log('STOP DRAG', event)
     document.removeEventListener('mousemove', dragMove)
   }
 

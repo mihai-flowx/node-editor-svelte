@@ -8,47 +8,49 @@
   let viewerElm: HTMLElement = null
   let zoomLevel = 1
 
-  let edgePositions = {
-    1: {
-      source: { x: 100, y: 100 },
-      target: { x: 300, y: 300 },
-    },
-    2: {
-      source: { x: 300, y: 100 },
-      target: { x: 380, y: 170 },
-    },
-    3: {
-      source: { x: 350, y: 100 },
-      target: { x: 200, y: 20 },
-    },
-    4: {
-      source: { x: 550, y: 200 },
-      target: { x: 300, y: 100 },
-    },
-  }
+  let edgePositions = initEdgePositions(edges)
 
   function zoomViewer(event: WheelEvent) {
-    console.log(event)
+    // console.log(event)
     const newZoom = zoomLevel + 0.02 * event.deltaY
     zoomLevel = Math.min(1, Math.max(0.2, newZoom))
   }
 
-  function nodeMoved({ detail: { id, deltaPos, currentPos, socketsPositions } }) {
-    // console.log('NODE MOVED', id, deltaPos, currentPos, socketsPositions)
-    // TODO: Gaseste toate edges legate de nodu cu id-u asta si modifica-le pozitia
-    const edgesToUpdate = edges.filter((edge) => edge.source.nodeId === id || edge.target.nodeId === id)
-    // .map(({ id, source, target }) => ({ id, source, target }))
-    // console.log('EDGES TO UPDATE', edgesToUpdate)
+  function nodeMounted({ detail: { id, socketsPositions } }) {
+    edgePositions = matchEdgesPositionsWithNodeSockets(id, edges, edgePositions, socketsPositions)
+  }
 
-    const newEdgePositions = edgesToUpdate.reduce((edgesObj, edge) => {
-      let source: any, target: any
+  function nodeMoved({ detail: { id, socketsPositions } }) {
+    edgePositions = matchEdgesPositionsWithNodeSockets(id, edges, edgePositions, socketsPositions)
+  }
+
+  function initEdgePositions(edges: any[]): any {
+    return edges.reduce(
+      (edgePositions, edge) => ({
+        ...edgePositions,
+        [edge.id]: {},
+      }),
+      {}
+    )
+  }
+
+  function matchEdgesPositionsWithNodeSockets(
+    nodeId: number,
+    edges: any,
+    edgePositions: any,
+    socketsPositions: any
+  ): any {
+    const edgesToUpdate = edges.filter((edge: any) => edge.source.nodeId === nodeId || edge.target.nodeId === nodeId)
+
+    const newEdgePositions = edgesToUpdate.reduce((edgesObj: any, edge: any) => {
+      let source = { ...edgePositions[edge.id].source }
+      let target = { ...edgePositions[edge.id].target }
+
       if (socketsPositions[edge.source.socketId]) {
         source = {
           x: socketsPositions[edge.source.socketId].x - viewerElm.getBoundingClientRect().left,
           y: socketsPositions[edge.source.socketId].y - viewerElm.getBoundingClientRect().top,
         }
-      } else {
-        source = { ...edgePositions[edge.id].source }
       }
 
       if (socketsPositions[edge.target.socketId]) {
@@ -56,8 +58,6 @@
           x: socketsPositions[edge.target.socketId].x - viewerElm.getBoundingClientRect().left,
           y: socketsPositions[edge.target.socketId].y - viewerElm.getBoundingClientRect().top,
         }
-      } else {
-        target = { ...edgePositions[edge.id].target }
       }
 
       return {
@@ -69,9 +69,7 @@
       }
     }, {})
 
-    // console.log('NEW EDGE POS', newEdgePositions)
-
-    edgePositions = {
+    return {
       ...edgePositions,
       ...newEdgePositions,
     }
@@ -83,12 +81,13 @@
     {#each nodes as node, i}
       <Node
         on:move={nodeMoved}
+        on:mount={nodeMounted}
         id={node.id}
         name={node.name}
         parent={viewerElm}
         inputSockets={node.inputSockets}
         outputSockets={node.outputSockets}
-        currentPos={{ x: 100 + i * 250, y: 100 + 50 * Math.random() }} />
+        currentPos={{ x: 100 + i * 300, y: 100 + 80 * Math.random() }} />
     {/each}
     {#each Object.values(edgePositions) as edgePos}
       <Edge source={edgePos.source} target={edgePos.target} />
