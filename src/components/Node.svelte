@@ -99,7 +99,7 @@
 
 <div
   bind:this={nodeElm}
-  class="bg-white absolute flex flex-col shadow-lg p-4 border-0 border-gray-600 w-48 flex-shrink-0 cursor-pointer rounded-md z-30"
+  class="bg-white absolute flex flex-col shadow-lg p-4 border-0 border-gray-600 w-28 h-28 flex-shrink-0 cursor-pointer z-30"
   style="transform: translate({currentPos.x}px, {currentPos.y}px); {zIndexStyle}"
   on:mousedown={startDrag}
   on:mouseup={stopDrag}
@@ -118,8 +118,5 @@
       style="right: -0.5rem" />
   {/each}
 
-  <h3 class="select-none border-b-2 border-gray-500">{name}</h3>
-
-  <p>lorem ipsum</p>
-  <p>lorem ipsum</p>
+  <h3 class="select-none border-b-2 border-gray-500 max-w-full overflow-ellipsis overflow-hidden">{name}</h3>
 </div>
