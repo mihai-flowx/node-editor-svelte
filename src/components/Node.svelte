@@ -31,6 +31,7 @@
   })
 
   function startDrag(event: MouseEvent) {
+    console.log('start drag')
     if (event.button !== MouseButton.LEFT) {
       return
     }
@@ -67,6 +68,10 @@
     }
 
     dispatch('move', { id, currentPos, deltaPos, socketsPositions: getSocketsPositions() })
+  }
+
+  function socketClicked(socket: any) {
+    dispatch('socketClick', { socket, socketPosition: getSocketPos(socket) })
   }
 
   function getSocketsPositions(): { [id: number]: { x: number; y: number } } {
@@ -107,6 +112,8 @@
   {#each inputSockets as socket}
     <span
       bind:this={socket.elmRef}
+      on:click={(event) => socketClicked(socket)}
+      on:mousedown={(event) => event.stopPropagation()}
       class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 hover:border-blue-800 border-4 z-20"
       style="left: -0.5rem" />
   {/each}
@@ -114,9 +121,11 @@
   {#each outputSockets as socket}
     <span
       bind:this={socket.elmRef}
+      on:click={(event) => socketClicked(socket)}
+      on:mousedown={(event) => event.stopPropagation()}
       class="absolute top-2/4 w-4 h-4 rounded-full border-blue-500 hover:border-blue-800 border-4 z-20"
       style="right: -0.5rem" />
   {/each}
 
-  <h3 class="select-none border-b-2 border-gray-500 max-w-full overflow-ellipsis overflow-hidden">{name}</h3>
+  <h3>{name}</h3>
 </div>

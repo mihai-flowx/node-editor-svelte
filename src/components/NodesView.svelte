@@ -122,11 +122,13 @@
   on:wheel={zoomViewer}
   on:mousedown={startViewDrag}
   on:mouseup={stopViewDrag}
-  on:dragstart={() => false}>
+  on:dragstart={() => false}
+>
   <div
     bind:this={viewTransformElm}
     style="transform: scale({zoomLevel}) translate({currentViewPos.x}px, {currentViewPos.y}px)"
-    class="nodes-wrapper border-red-500 border">
+    class="nodes-wrapper border-red-500 border"
+  >
     {#each nodes as node, i}
       <Node
         on:move={nodeMoved}
@@ -137,7 +139,8 @@
         parent={viewTransformElm}
         inputSockets={node.inputSockets}
         outputSockets={node.outputSockets}
-        currentPos={{ x: 100 + i * 300, y: 100 + 150 * Math.random() }} />
+        currentPos={{ x: 100 + i * 300, y: 100 + 150 * Math.random() }}
+      />
     {/each}
     {#each Object.values(edgePositions) as edgePos}
       <Edge source={edgePos.source} target={edgePos.target} />
