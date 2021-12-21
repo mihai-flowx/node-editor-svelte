@@ -24,7 +24,8 @@
   }
 
   function zoomViewer(event: WheelEvent) {
-    const newZoom = zoomLevel + 0.02 * event.deltaY
+    const newZoom = zoomLevel + 0.002 * event.deltaY
+    console.log('delta Y', event.deltaY)
     zoomLevel = Math.min(1, Math.max(0.2, newZoom))
   }
 
